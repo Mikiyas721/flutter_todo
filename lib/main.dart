@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo/ui/pages/homePage.dart';
+import './ui/pages/taskManipulationPage.dart';
 import './ui/pages/openingPage.dart';
 import './ui/pages/loginPage.dart';
 import './ui/pages/signUpPage.dart';
@@ -11,6 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Todo',
       initialRoute: '/',
       routes: routes,
@@ -21,5 +24,7 @@ class MyApp extends StatelessWidget {
 final routes = {
   '/': (BuildContext context) => OpeningPage(),
   '/loginPage':(BuildContext context) => LoginPage(),
-  '/signUpPage':(BuildContext context) => SignUpPage()
+  '/signUpPage':(BuildContext context) => SignUpPage(),
+  '/homePage':(BuildContext context) => HomePage(),
+  '/taskManipulationPage':(BuildContext context) => TaskManipulationPage()
 };
