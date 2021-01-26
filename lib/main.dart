@@ -4,8 +4,10 @@ import './ui/pages/taskManipulationPage.dart';
 import './ui/pages/openingPage.dart';
 import './ui/pages/loginPage.dart';
 import './ui/pages/signUpPage.dart';
+import 'injector.dart';
 
 void main() {
+  inject();
   runApp(MyApp());
 }
 

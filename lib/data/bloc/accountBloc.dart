@@ -1,22 +1,27 @@
 import 'package:get_it/get_it.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:todo/data/models/user.dart';
+import 'package:todo/util/apiQuery.dart';
 import '../../util/abstracts/disposable.dart';
 
 class AccountBloc extends Disposable {
   final _fullName =
-  GetIt.instance.get<BehaviorSubject>(instanceName: 'FullName');
+      GetIt.instance.get<BehaviorSubject>(instanceName: 'FullName');
   final _email = GetIt.instance.get<BehaviorSubject>(instanceName: 'Email');
   final _userName =
-  GetIt.instance.get<BehaviorSubject>(instanceName: 'UserName');
+      GetIt.instance.get<BehaviorSubject>(instanceName: 'UserName');
   final _password =
-  GetIt.instance.get<BehaviorSubject>(instanceName: 'Password');
+      GetIt.instance.get<BehaviorSubject>(instanceName: 'Password');
   final _passwordRepeat =
-  GetIt.instance.get<BehaviorSubject>(instanceName: 'PasswordRepeat');
+      GetIt.instance.get<BehaviorSubject>(instanceName: 'PasswordRepeat');
+  final _api = GetIt.instance.get<ApiQuery>();
 
   Stream<String> get nameValidationStream =>
       _fullName.map((data) => validateName(data));
 
-  Stream<String> get emailValidationStream => _email.map((data) => validateEmail(data));
+  Stream<String> get emailValidationStream =>
+      _email.map((data) => validateEmail(data));
 
   Stream<String> get userNameValidationStream =>
       _userName.map((data) => validateUserName(data));
@@ -25,13 +30,18 @@ class AccountBloc extends Disposable {
       _password.map((data) => validatePassword(data));
 
   Stream<String> get passwordRepeatValidationStream =>
-      _passwordRepeat.map((data) => validateName(data));
+      _passwordRepeat.map((data) => validateRepeatPassword(data));
 
-  void onNameChanged(String name)=>_fullName.add(name);
-  void onEmailChanged(String email)=>_email.add(email);
-  void onUserNameChanged(String userName)=>_userName.add(userName);
-  void onPasswordChanged(String password)=>_password.add(password);
-  void onRepeatPasswordChanged(String password)=>_passwordRepeat.add(password);
+  void onNameChanged(String name) => _fullName.add(name);
+
+  void onEmailChanged(String email) => _email.add(email);
+
+  void onUserNameChanged(String userName) => _userName.add(userName);
+
+  void onPasswordChanged(String password) => _password.add(password);
+
+  void onRepeatPasswordChanged(String password) =>
+      _passwordRepeat.add(password);
 
   String validateName(String textFieldInput) {
     if (textFieldInput == '' || textFieldInput == null)
@@ -68,12 +78,11 @@ class AccountBloc extends Disposable {
       return 'Invalid email';
   }
 
-  bool isEmailValid(String textFieldInput) =>
-      (textFieldInput.length > 11 &&
+  bool isEmailValid(String textFieldInput) => (textFieldInput.length > 11 &&
           textFieldInput.contains('.com') &&
           textFieldInput.contains('@'))
-          ? true
-          : false;
+      ? true
+      : false;
 
   String validatePassword(String textFieldInput) {
     if (textFieldInput == '' || textFieldInput == null)
@@ -85,9 +94,7 @@ class AccountBloc extends Disposable {
   }
 
   bool isPasswordValid(String textFieldInput) =>
-      textFieldInput.length > 4
-          ? true
-          : false;
+      textFieldInput.length > 4 ? true : false;
 
   String validateRepeatPassword(String textFieldInput) {
     if (textFieldInput == '' || textFieldInput == null)
@@ -99,23 +106,36 @@ class AccountBloc extends Disposable {
   }
 
   bool isPasswordSame(String textFieldInput) =>
-      textFieldInput == _password.value
-          ? true
-          : false;
+      textFieldInput == _password.value ? true : false;
 
-  Future<bool> onSignUp() async{
-    if (isNameValid(_fullName.value) && isEmailValid(_email.value) &&
-        isUserNameValid(_userName.value) && isPasswordValid(_password.value) &&
-        isPasswordSame(_passwordRepeat.value)){
-      //TODO make http request and return based on response
-    }else return false;
+  void clearStreams() {
+    _fullName.add(null);
+    _userName.add(null);
+    _email.add(null);
+    _password.add(null);
+    _passwordRepeat.add(null);
   }
-  Future<bool> onLogIn() async{
-    if (isNameValid(_fullName.value) && isEmailValid(_email.value) &&
-        isUserNameValid(_userName.value) && isPasswordValid(_password.value) &&
-        isPasswordSame(_passwordRepeat.value)){
-      //TODO make http request and return based on response
-    }else return false;
+
+  Future<bool> onSignUp() async {
+    if (isNameValid(_fullName.value) &&
+        isEmailValid(_email.value) &&
+        isUserNameValid(_userName.value) &&
+        isPasswordValid(_password.value) &&
+        isPasswordSame(_passwordRepeat.value)) {
+      QueryResult result = await _api.createUser(User(
+          fullName: _fullName.value,
+          userName: _userName.value,
+          email: _email.value,
+          passWord: _password.value));
+      return result.hasException ? false : true;
+    } else
+      return false;
+  }
+
+  Future<bool> onLogIn() async {
+    QueryResult result = await _api
+        .checkUser(User(userName: _userName.value, passWord: _password.value));
+    return result.data['users'].isEmpty ? false : true;
   }
 
   @override

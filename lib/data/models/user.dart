@@ -10,12 +10,12 @@ class User extends Mappable {
   DateTime createdAt;
 
   User({
-    @required this.id,
-    @required this.fullName,
+    this.id,
+    this.fullName,
     @required this.userName,
-    @required this.email,
+    this.email,
     @required this.passWord,
-    @required this.createdAt,
+    this.createdAt,
   });
 
   @override

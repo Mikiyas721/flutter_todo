@@ -50,7 +50,7 @@ class LoginPage extends StatelessWidget {
                               hintText: 'Username',
                               prefixIcon: Icons.note_outlined,
                               errorText: snapshot.data,
-                              onChanged: bloc.validateUserName,
+                              onChanged: bloc.onUserNameChanged,
                               onTap: () {
                                 controller.animateTo(
                                     MediaQuery.of(context).size.height * 0.5,
@@ -68,7 +68,7 @@ class LoginPage extends StatelessWidget {
                               hintText: 'Password',
                               prefixIcon: Icons.lock,
                               errorText: snapshot.data,
-                              onChanged: bloc.validatePassword,
+                              onChanged: bloc.onPasswordChanged,
                               onTap: () {
                                 controller.animateTo(
                                     MediaQuery.of(context).size.height * 0.5,
@@ -121,6 +121,7 @@ class LoginPage extends StatelessWidget {
                         padding: EdgeInsets.only(top: 10, bottom: 15),
                         child: OutlinedButton(
                           onPressed: () {
+                            bloc.clearStreams();
                             Navigator.pushReplacementNamed(
                                 context, '/signUpPage');
                           },

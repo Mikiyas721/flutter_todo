@@ -46,7 +46,7 @@ class SignUpPage extends StatelessWidget {
                                   hintText: 'Bob Steven',
                                   prefixIcon: Icons.note_outlined,
                                   errorText: snapshot.data,
-                                  onChanged: bloc.validateUserName);
+                                  onChanged: bloc.onNameChanged);
                             }),
                         StreamBuilder(
                             stream: bloc.emailValidationStream,
@@ -56,7 +56,7 @@ class SignUpPage extends StatelessWidget {
                                   hintText: 'XYZ@gmail.com',
                                   prefixIcon: Icons.email,
                                   errorText: snapshot.data,
-                                  onChanged: bloc.validateEmail);
+                                  onChanged: bloc.onEmailChanged);
                             }),
                         StreamBuilder(
                             stream: bloc.userNameValidationStream,
@@ -65,25 +65,27 @@ class SignUpPage extends StatelessWidget {
                                   hintText: 'Username',
                                   prefixIcon: Icons.note_outlined,
                                   errorText: snapshot.data,
-                                  onChanged: bloc.validateUserName);
+                                  onChanged: bloc.onUserNameChanged);
                             }),
                         StreamBuilder(
                             stream: bloc.passwordValidationStream,
                             builder: (context, snapshot) {
                               return MyTextField(
                                   hintText: 'Password',
+                                  obscureText: true,
                                   prefixIcon: Icons.lock,
                                   errorText: snapshot.data,
-                                  onChanged: bloc.validatePassword);
+                                  onChanged: bloc.onPasswordChanged);
                             }),
                         StreamBuilder(
                             stream: bloc.passwordRepeatValidationStream,
                             builder: (context, snapshot) {
                               return MyTextField(
                                   hintText: 'Repeat Password',
+                                  obscureText: true,
                                   prefixIcon: Icons.lock,
                                   errorText: snapshot.data,
-                                  onChanged: bloc.validateRepeatPassword);
+                                  onChanged: bloc.onRepeatPasswordChanged);
                             }),
                         Padding(
                           padding: EdgeInsets.only(top: 40, bottom: 10),
@@ -120,6 +122,7 @@ class SignUpPage extends StatelessWidget {
                           padding: EdgeInsets.only(top: 10, bottom: 15),
                           child: OutlinedButton(
                             onPressed: () {
+                              bloc.clearStreams();
                               Navigator.pushReplacementNamed(
                                   context, '/loginPage');
                             },
