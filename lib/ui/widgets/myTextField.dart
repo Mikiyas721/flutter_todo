@@ -7,13 +7,13 @@ class MyTextField extends StatelessWidget {
   final void Function() onTap;
   final bool obscureText;
   final TextInputType keyboardType;
+  final String errorText;
 
-  MyTextField(
-      {@required this.hintText,
-      @required this.prefixIcon,
-      @required this.onChanged,
-      this.onTap,this.obscureText = false,
-      this.keyboardType = TextInputType.text});
+  MyTextField({@required this.hintText,
+    @required this.prefixIcon,
+    @required this.onChanged,
+    this.onTap, this.obscureText = false,
+    this.keyboardType = TextInputType.text, this.errorText});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +23,7 @@ class MyTextField extends StatelessWidget {
         keyboardType: keyboardType,
         obscureText: obscureText,
         decoration: InputDecoration(
+            errorText:errorText,
             hintText: hintText,
             hintStyle: TextStyle(
               color: Color(0x99006bff),
