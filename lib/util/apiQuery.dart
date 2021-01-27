@@ -46,4 +46,19 @@ class ApiQuery {
       }
       ''');
   }
+
+  Future<QueryResult> getTodoForUser(int userId,String date) {
+    return _query('''
+      query MyQuery {
+        todos(where: {_and: {user_id: {_eq: $userId}, date: {_eq: "$date"}}}) {
+          id
+          title
+          date
+          start_time
+          end_time
+          priority
+        }
+      }
+    ''');
+  }
 }

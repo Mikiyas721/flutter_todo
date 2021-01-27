@@ -8,7 +8,9 @@ import '../../util/enums/priority.dart';
 class AddAndEditPage extends StatelessWidget with DateTimeMixin {
   @override
   Widget build(BuildContext context) {
-    Todo toBeEdited = ModalRoute.of(context).settings.arguments;
+    Map map = ModalRoute.of(context).settings.arguments;
+    Todo toBeEdited = map['todo'];
+    DateTime selectedDate = map['date'];
     return Scaffold(
       backgroundColor: Color(0xfffbfbfb),
       appBar: AppBar(
@@ -25,7 +27,7 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
         title: Text(
           toBeEdited == null ? 'Add' : 'Edit',
           style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black),
+              fontWeight: FontWeight.bold, fontSize: 24, color: Color(0xff006bff)),
         ),
         elevation: 0,
         centerTitle: true,
@@ -57,12 +59,12 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                   readOnly: true,
                   controller: TextEditingController(
                       text: toBeEdited == null
-                          ? ''
+                          ? getFullDateString(selectedDate)
                           : getFullDateString(toBeEdited.date)),
                   onTap: () async {
                     DateTime selected = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
+                        initialDate: selectedDate,
                         firstDate: DateTime(1998),
                         lastDate: DateTime(2100));
                   },

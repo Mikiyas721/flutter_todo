@@ -6,11 +6,13 @@ class MyPageView extends StatefulWidget {
   final int itemCount;
   final int initialPage;
   final List<DateTime> dates;
+  final void Function(DateTime dateTime) onPageChanged;
 
   MyPageView(
       {@required this.itemCount,
       @required this.initialPage,
-      @required this.dates});
+      @required this.dates,
+        @required this.onPageChanged});
 
   @override
   State<StatefulWidget> createState() => _MyPageViewState();
@@ -21,7 +23,8 @@ class _MyPageViewState extends State<MyPageView> with DateTimeMixin {
 
   @override
   void initState() {
-    selectedDateTime = widget.dates[0];
+    selectedDateTime = widget.dates[widget.initialPage];
+    widget.onPageChanged(selectedDateTime);
     super.initState();
   }
 
@@ -31,11 +34,13 @@ class _MyPageViewState extends State<MyPageView> with DateTimeMixin {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${mapMonth(selectedDateTime.month)} ${selectedDateTime.day}',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+        Padding(
+          padding: EdgeInsets.only(top:30),
+          child: Text(
+            '${mapMonth(selectedDateTime.month)} ${selectedDateTime.day}',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30,color: Color(0xff006bff)),
+          ),
         ),
-        SizedBox(height: 10),
         Container(
           width: MediaQuery.of(context).size.width,
           height: 160,
@@ -47,6 +52,7 @@ class _MyPageViewState extends State<MyPageView> with DateTimeMixin {
               setState(() {
                 selectedDateTime = widget.dates[index];
               });
+              widget.onPageChanged(selectedDateTime);
             },
             itemCount: widget.itemCount,
             itemBuilder: (BuildContext context, int index) {

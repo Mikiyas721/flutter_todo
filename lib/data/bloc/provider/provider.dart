@@ -17,7 +17,7 @@ class BlocProvider<T> extends StatelessWidget {
   final T Function() blocSource;
   final Function(BuildContext context, T bloc) builder;
 
-  BlocProvider({@required this.builder, @required this.blocSource});
+  BlocProvider({@required this.blocSource,@required this.builder});
 
   @override
   Widget build(BuildContext context) {

@@ -67,7 +67,7 @@ mixin DateTimeMixin {
   }
 
   String getFullDateString(DateTime dateTime) {
-    return '${getDayOfWeekLong(dateTime.weekday)}, ${mapMonth(dateTime.month)} ${dateTime.month}, ${dateTime.year}';
+    return '${getDayOfWeekLong(dateTime.weekday)}, ${mapMonth(dateTime.month)} ${dateTime.day}, ${dateTime.year}';
   }
 
   String mapTimeToMeridian(DateTime dateTime){
@@ -77,4 +77,5 @@ mixin DateTimeMixin {
     else if(dateTime.hour<12) return '${dateTime.hour}:$minute AM';
     else return '${dateTime.hour - 12}:$minute PM';
   }
+
 }

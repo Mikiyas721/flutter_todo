@@ -2,14 +2,16 @@ import 'package:flutter/cupertino.dart';
 import '../../util/abstracts/mappable.dart';
 import '../../util/enums/priority.dart';
 
-class Todo extends Mappable {
+class Todo extends Mappable{
   int id;
   String title;
   DateTime date;
   DateTime startTime;
   DateTime endTime;
   TaskPriority priority;
+  bool isCompleted;
   int userId;
+
 
   Todo({
     this.id,
@@ -18,6 +20,7 @@ class Todo extends Mappable {
     @required this.startTime,
     @required this.endTime,
     @required this.priority,
+    @required this.isCompleted,
     this.userId,
   });
 
@@ -25,10 +28,11 @@ class Todo extends Mappable {
     return Todo(
         id: map['id'],
         title: map['title'],
-        date: map['date'],
-        startTime: map['start_time'],
-        endTime: map['end_time'],
-        priority: map['priority'],
+        date: DateTime.parse(map['date']),
+        startTime: DateTime.parse("${map['date']} ${map['start_time']}"),
+        endTime: DateTime.parse("${map['date']} ${map['end_time']}"),
+        priority: TaskPriorityExtension.fromString(map['priority']),
+        isCompleted: map['is_completed'],
         userId: map['user_id']);
   }
 
@@ -41,6 +45,7 @@ class Todo extends Mappable {
       'start_time':startTime.toString(),
       'end_time':endTime.toString(),
       'priority':priority.getString(),
+      'is_completed': isCompleted,
       'user_id':userId.toString()
     };
   }

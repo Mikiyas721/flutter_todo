@@ -2,9 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo/data/models/user.dart';
-import 'package:todo/util/apiQuery.dart';
-import 'package:todo/util/preferenceKeys.dart';
+import '../../data/models/user.dart';
+import '../../util/apiQuery.dart';
+import '../../util/preferenceKeys.dart';
 import '../../util/abstracts/disposable.dart';
 
 class AccountBloc extends Disposable {
