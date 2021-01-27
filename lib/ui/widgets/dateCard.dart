@@ -12,7 +12,8 @@ class DateCardBlurred extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: EdgeInsets.only(top: 22, bottom: 22, left: 17, right: 17),
+          width:60,
+          height: 90,
           margin: EdgeInsets.only(top: 30),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -20,6 +21,7 @@ class DateCardBlurred extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(dayOfMonth.toString(),
                   style: TextStyle(
@@ -48,13 +50,15 @@ class DateCardHighlighted extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, children: [
       Container(
-        padding: EdgeInsets.only(top: 22, bottom: 22, left: 17, right: 17),
+        width:60,
+        height: 90,
         margin: EdgeInsets.only(bottom: 12, top: 30),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(15)),
             color: Color(0xff006bff)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(dayOfMonth.toString(),
                 style: TextStyle(

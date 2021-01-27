@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/data/models/user.dart';
 import 'package:todo/util/apiQuery.dart';
+import 'package:todo/util/preferenceKeys.dart';
 import '../../util/abstracts/disposable.dart';
 
 class AccountBloc extends Disposable {
@@ -16,6 +18,7 @@ class AccountBloc extends Disposable {
   final _passwordRepeat =
       GetIt.instance.get<BehaviorSubject>(instanceName: 'PasswordRepeat');
   final _api = GetIt.instance.get<ApiQuery>();
+  final _sharedPreference = GetIt.instance.get<SharedPreferences>();
 
   Stream<String> get nameValidationStream =>
       _fullName.map((data) => validateName(data));
@@ -127,15 +130,29 @@ class AccountBloc extends Disposable {
           userName: _userName.value,
           email: _email.value,
           passWord: _password.value));
-      return result.hasException ? false : true;
-    } else
+      if(!result.hasException){
+        _sharedPreference.setInt(
+            PreferenceKeys.userIdKey, result.data['insert_users']['returning'][0]['id']);
+        _sharedPreference.setString(
+            PreferenceKeys.createdAtKey, result.data['insert_users']['returning'][0]['created_at']);
+        return true;
+      }
+    }
       return false;
   }
 
   Future<bool> onLogIn() async {
     QueryResult result = await _api
         .checkUser(User(userName: _userName.value, passWord: _password.value));
-    return result.data['users'].isEmpty ? false : true;
+    bool isAUser = result.data['users'].isNotEmpty;
+    if (isAUser) {
+      _sharedPreference.setInt(
+          PreferenceKeys.userIdKey, result.data['users'][0]['id']);
+      _sharedPreference.setString(
+          PreferenceKeys.createdAtKey, result.data['users'][0]['created_at']);
+      return true;
+    }
+    return false;
   }
 
   @override

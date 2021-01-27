@@ -1,9 +1,12 @@
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:todo/util/apiQuery.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import './util/apiQuery.dart';
 
-void inject() {
+Future<void> inject() async{
   GetIt getIt = GetIt.instance;
+  final preference = await SharedPreferences.getInstance();
+  getIt.registerSingleton(preference);
   getIt.registerLazySingleton(() => BehaviorSubject<String>(),instanceName:'FullName');
   getIt.registerLazySingleton(() => BehaviorSubject<String>(),instanceName:'Email');
   getIt.registerLazySingleton(() => BehaviorSubject<String>(),instanceName:'UserName');

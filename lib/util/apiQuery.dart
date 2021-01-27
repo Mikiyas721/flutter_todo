@@ -29,6 +29,7 @@ class ApiQuery {
             affected_rows
             returning {
               id
+              created_at
             }
           }
         }

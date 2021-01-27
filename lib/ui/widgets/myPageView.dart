@@ -28,32 +28,39 @@ class _MyPageViewState extends State<MyPageView> with DateTimeMixin {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           '${mapMonth(selectedDateTime.month)} ${selectedDateTime.day}',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
         ),
-        PageView.builder(
-          controller: PageController(
-              initialPage: widget.initialPage, viewportFraction: 0.22),
-          scrollDirection: Axis.horizontal,
-          onPageChanged: (int index) {
-            setState(() {
-              selectedDateTime = widget.dates[index];
-            });
-          },
-          itemCount: widget.itemCount,
-          itemBuilder: (BuildContext context, int index) {
-            return Transform.scale(
-                scale: widget.dates[index] == selectedDateTime ? 1.2 : 1,
-                child: widget.dates[index] == selectedDateTime
-                    ? DateCardHighlighted(
-                        dayOfWeek: getDayOfWeek(widget.dates[index].weekday),
-                        dayOfMonth: widget.dates[index].day)
-                    : DateCardBlurred(
-                        dayOfWeek: getDayOfWeek(widget.dates[index].weekday),
-                        dayOfMonth: widget.dates[index].day));
-          },
+        SizedBox(height: 10),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: 160,
+          child: PageView.builder(
+            controller: PageController(
+                initialPage: widget.initialPage, viewportFraction: 0.22),
+            scrollDirection: Axis.horizontal,
+            onPageChanged: (int index) {
+              setState(() {
+                selectedDateTime = widget.dates[index];
+              });
+            },
+            itemCount: widget.itemCount,
+            itemBuilder: (BuildContext context, int index) {
+              return Transform.scale(
+                  scale: widget.dates[index] == selectedDateTime ? 1.1 : 1,
+                  child: widget.dates[index] == selectedDateTime
+                      ? DateCardHighlighted(
+                          dayOfWeek: getDayOfWeekShort(widget.dates[index].weekday),
+                          dayOfMonth: widget.dates[index].day)
+                      : DateCardBlurred(
+                          dayOfWeek: getDayOfWeekShort(widget.dates[index].weekday),
+                          dayOfMonth: widget.dates[index].day));
+            },
+          ),
         ),
       ],
     );

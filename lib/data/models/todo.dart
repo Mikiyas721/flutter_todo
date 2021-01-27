@@ -12,13 +12,13 @@ class Todo extends Mappable {
   int userId;
 
   Todo({
-    @required this.id,
+    this.id,
     @required this.title,
     @required this.date,
     @required this.startTime,
     @required this.endTime,
     @required this.priority,
-    @required this.userId,
+    this.userId,
   });
 
   factory Todo.fromApi(Map map) {
