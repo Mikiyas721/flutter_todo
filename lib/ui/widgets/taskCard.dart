@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../data/bloc/provider/provider.dart';
+import '../../data/bloc/todoBloc.dart';
 import '../../util/mixin/dateTimeMixin.dart';
 import '../../util/enums/priority.dart';
 import '../../data/models/todo.dart';
@@ -14,16 +16,17 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> with DateTimeMixin {
-  bool isCompleted;
+  bool localCompletedState;
 
   @override
   void initState() {
-    isCompleted = false;
+    localCompletedState = widget.todo.isCompleted;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<TodoBloc>(context);
     return GestureDetector(
       child: Container(
         padding: EdgeInsets.only(top: 10, bottom: 10, right: 20, left: 20),
@@ -47,11 +50,12 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                 ),
                 Spacer(),
                 Checkbox(
-                    value: isCompleted,
+                    value: localCompletedState,
                     onChanged: (bool state) {
                       setState(() {
-                        isCompleted = !isCompleted;
+                        localCompletedState = !localCompletedState;
                       });
+                      bloc.markTodo(Todo(id: widget.todo.id,isCompleted: localCompletedState));
                     })
               ],
             ),
@@ -65,7 +69,9 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                   color: Colors.white54,
                 ),
                 Text(
-                  ' ${mapTimeToMeridian(widget.todo.startTime)} - ${mapTimeToMeridian(widget.todo.endTime)}',
+                  ' ${mapTimeToMeridian(
+                      widget.todo.startTime)} - ${mapTimeToMeridian(
+                      widget.todo.endTime)}',
                   style: TextStyle(color: Colors.white),
                 ),
                 Spacer(),
@@ -79,7 +85,8 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
         ),
       ),
       onTap: () {
-        Navigator.pushNamed(context, '/addAndEditPage',arguments:{'todo':widget.todo,'date':null});
+        Navigator.pushNamed(context, '/addAndEditPage',
+            arguments: {'todo': widget.todo, 'date': null});
       },
     );
   }

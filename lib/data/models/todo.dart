@@ -20,7 +20,7 @@ class Todo extends Mappable{
     @required this.startTime,
     @required this.endTime,
     @required this.priority,
-    @required this.isCompleted,
+     this.isCompleted = false,
     this.userId,
   });
 

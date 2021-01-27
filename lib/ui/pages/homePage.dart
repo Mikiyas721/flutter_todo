@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget with DateTimeMixin {
               toolbarHeight: 200,
             ),
             body: Padding(
-              padding: EdgeInsets.only(right: 25, left: 25, top: 10),
+              padding: EdgeInsets.only(right: 25, left: 25, top: 10,bottom: 80),
               child: StreamBuilder(
                   stream: bloc.currentDateTasksStream,
                   builder:

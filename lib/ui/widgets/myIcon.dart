@@ -21,7 +21,7 @@ class MyIcon extends StatelessWidget {
         color: backgroundColor,
       ),
       padding: EdgeInsets.all(10),
-      margin: margin ?? EdgeInsets.all(10),
+      margin: margin ?? EdgeInsets.only(left:10,right: 5,bottom: 10,top: 10),
       child: Icon(
         icon,
         color: color,

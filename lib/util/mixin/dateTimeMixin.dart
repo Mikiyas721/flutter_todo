@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 mixin DateTimeMixin {
   String getDayOfWeekShort(int dayOfWeek) {
     if (dayOfWeek == 1)
@@ -67,15 +69,28 @@ mixin DateTimeMixin {
   }
 
   String getFullDateString(DateTime dateTime) {
-    return '${getDayOfWeekLong(dateTime.weekday)}, ${mapMonth(dateTime.month)} ${dateTime.day}, ${dateTime.year}';
+    return dateTime==null?null:'${getDayOfWeekLong(dateTime.weekday)}, ${mapMonth(dateTime.month)} ${dateTime.day}, ${dateTime.year}';
   }
 
-  String mapTimeToMeridian(DateTime dateTime){
-    String minute = dateTime.minute<10?'0${dateTime.minute}':dateTime.minute.toString();
-    if(dateTime.hour==0) return '${12}:$minute AM';
-    else if(dateTime.hour==12) return '${12}:$minute PM';
-    else if(dateTime.hour<12) return '${dateTime.hour}:$minute AM';
-    else return '${dateTime.hour - 12}:$minute PM';
+  String mapTimeToMeridian(DateTime dateTime) {
+    if(dateTime!=null){
+      String minute = dateTime.minute < 10
+          ? '0${dateTime.minute}'
+          : dateTime.minute.toString();
+      if (dateTime.hour == 0)
+        return '${12}:$minute AM';
+      else if (dateTime.hour == 12)
+        return '${12}:$minute PM';
+      else if (dateTime.hour < 12)
+        return '${dateTime.hour}:$minute AM';
+      else
+        return '${dateTime.hour - 12}:$minute PM';
+    }
+    return null;
   }
+
+  String getDateString(DateTime dateTime) => dateTime.toString().split(' ')[0];
+
+  String getTimeString(DateTime dateTime) => dateTime.toString().split(' ')[1];
 
 }

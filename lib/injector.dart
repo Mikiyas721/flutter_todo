@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import './util/enums/priority.dart';
 import './util/apiQuery.dart';
 
 Future<void> inject() async{
@@ -16,4 +17,9 @@ Future<void> inject() async{
 
   getIt.registerLazySingleton(() => BehaviorSubject<DateTime>());
   getIt.registerLazySingleton(() => BehaviorSubject<List>());
+  getIt.registerLazySingleton(() => BehaviorSubject<String>(),instanceName:'Title');
+  getIt.registerLazySingleton(() => BehaviorSubject<DateTime>(),instanceName:'Date');
+  getIt.registerLazySingleton(() => BehaviorSubject<DateTime>(),instanceName:'StartTime');
+  getIt.registerLazySingleton(() => BehaviorSubject<DateTime>(),instanceName:'EndTime');
+  getIt.registerLazySingleton(() => BehaviorSubject<TaskPriority>(),instanceName:'Priority');
 }
