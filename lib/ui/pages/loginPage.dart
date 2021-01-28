@@ -102,8 +102,8 @@ class LoginPage extends StatelessWidget {
                             onPressed: () async {
                               bool isLoggedIn = await bloc.onLogIn();
                               if (isLoggedIn) {
-                                Navigator.pushReplacementNamed(
-                                    context, '/homePage');
+                                Navigator.pushNamedAndRemoveUntil(context,
+                                    '/homePage', (_) => false);
                               } else {
                                 Toast.show(
                                     'Unable to Log in. Check your inputs and internet connection',

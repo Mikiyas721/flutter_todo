@@ -103,8 +103,8 @@ class SignUpPage extends StatelessWidget {
                               onPressed: () async {
                                 bool isSignedIn = await bloc.onSignUp();
                                 if (isSignedIn) {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/homePage');
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context, '/homePage',(_)=>false);
                                 } else {
                                   Toast.show(
                                       'Unable to SignUp. Check your inputs and internet connection',

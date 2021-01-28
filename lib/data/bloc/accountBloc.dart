@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:get_it/get_it.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
@@ -18,7 +20,7 @@ class AccountBloc extends Disposable {
   final _passwordRepeat =
       GetIt.instance.get<BehaviorSubject>(instanceName: 'PasswordRepeat');
   final _api = GetIt.instance.get<ApiQuery>();
-  final _sharedPreference = GetIt.instance.get<SharedPreferences>();
+  final _preference = GetIt.instance.get<SharedPreferences>();
 
   Stream<String> get nameValidationStream =>
       _fullName.map((data) => validateName(data));
@@ -130,15 +132,15 @@ class AccountBloc extends Disposable {
           userName: _userName.value,
           email: _email.value,
           passWord: _password.value));
-      if(!result.hasException){
-        _sharedPreference.setInt(
-            PreferenceKeys.userIdKey, result.data['insert_users']['returning'][0]['id']);
-        _sharedPreference.setString(
-            PreferenceKeys.createdAtKey, result.data['insert_users']['returning'][0]['created_at']);
+      if (!result.hasException) {
+        _preference.setInt(PreferenceKeys.userIdKey,
+            result.data['insert_users']['returning'][0]['id']);
+        _preference.setString(PreferenceKeys.createdAtKey,
+            result.data['insert_users']['returning'][0]['created_at']);
         return true;
       }
     }
-      return false;
+    return false;
   }
 
   Future<bool> onLogIn() async {
@@ -146,14 +148,18 @@ class AccountBloc extends Disposable {
         .checkUser(User(userName: _userName.value, passWord: _password.value));
     bool isAUser = result.data['users'].isNotEmpty;
     if (isAUser) {
-      _sharedPreference.setInt(
+      _preference.setInt(
           PreferenceKeys.userIdKey, result.data['users'][0]['id']);
-      _sharedPreference.setString(
+      _preference.setString(
           PreferenceKeys.createdAtKey, result.data['users'][0]['created_at']);
       return true;
     }
     return false;
   }
+
+  Future<bool> onLogout() async =>
+      await _preference.remove(PreferenceKeys.userIdKey) &&
+      await _preference.remove(PreferenceKeys.createdAtKey);
 
   @override
   void dispose() {

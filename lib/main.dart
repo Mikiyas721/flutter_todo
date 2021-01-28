@@ -36,6 +36,7 @@ final bool isLoggedIn = GetIt.instance
 
 final routes = {
   '/': (BuildContext context) => isLoggedIn ? HomePage() : OpeningPage(),
+  '/openingPage': (BuildContext context)=>OpeningPage(),
   '/loginPage': (BuildContext context) => LoginPage(),
   '/signUpPage': (BuildContext context) => SignUpPage(),
   '/homePage':(BuildContext context)=>HomePage(),

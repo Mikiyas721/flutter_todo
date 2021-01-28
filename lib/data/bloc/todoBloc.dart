@@ -104,9 +104,10 @@ class TodoBloc extends Disposable with DateTimeMixin {
     }
     return false;
   }
-  void markTodo(Todo todo)async{
-    await _api.markAsCompletedTodo(todo);
-  }
+
+  Future<bool> markTodo(Todo todo) async =>
+      !((await _api.markAsCompletedTodo(todo)).hasException);
+
   Future<bool> onUpdateTodo(int id) async {
     QueryResult result = await _api.updateTodo(Todo(
         id: id,

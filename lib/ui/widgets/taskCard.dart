@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
 import '../../data/bloc/provider/provider.dart';
 import '../../data/bloc/todoBloc.dart';
 import '../../util/mixin/dateTimeMixin.dart';
@@ -51,11 +52,15 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                 Spacer(),
                 Checkbox(
                     value: localCompletedState,
-                    onChanged: (bool state) {
-                      setState(() {
-                        localCompletedState = !localCompletedState;
-                      });
-                      bloc.markTodo(Todo(id: widget.todo.id,isCompleted: localCompletedState));
+                    onChanged: (bool state) async {
+                      if (await bloc.markTodo(Todo(
+                          id: widget.todo.id,
+                          isCompleted: localCompletedState)))
+                        setState(() {
+                          localCompletedState = !localCompletedState;
+                        });
+                      else
+                        Toast.show("Couldn't update.Please try again", context);
                     })
               ],
             ),
@@ -69,9 +74,7 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                   color: Colors.white54,
                 ),
                 Text(
-                  ' ${mapTimeToMeridian(
-                      widget.todo.startTime)} - ${mapTimeToMeridian(
-                      widget.todo.endTime)}',
+                  ' ${mapTimeToMeridian(widget.todo.startTime)} - ${mapTimeToMeridian(widget.todo.endTime)}',
                   style: TextStyle(color: Colors.white),
                 ),
                 Spacer(),
