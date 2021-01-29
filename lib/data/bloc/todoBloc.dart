@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -48,7 +50,7 @@ class TodoBloc extends Disposable with DateTimeMixin {
   void updateCurrentDate(DateTime date) {
     _currentDate.add(date);
     _currentDateTasks.add(null);
-    getCurrentDayTasks();
+    subscribeToCurrentDayTasks();
   }
 
   void updateTitle(String title) => _title.add(title);
@@ -71,6 +73,15 @@ class TodoBloc extends Disposable with DateTimeMixin {
     if (!result.hasException) {
       _currentDateTasks.add(result.data['todos']);
     }
+  }
+
+  void subscribeToCurrentDayTasks() {
+    _api
+        .subscribeTodoForUser(preference.getInt(PreferenceKeys.userIdKey),
+            _currentDate.value.toString().split(' ')[0])
+        .listen((event) {
+      _currentDateTasks.add(event.data['todos']);
+    });
   }
 
   List<DateTime> getDates() {
@@ -98,11 +109,7 @@ class TodoBloc extends Disposable with DateTimeMixin {
         endTime: _endTime.value,
         priority: _priority.value,
         userId: preference.getInt(PreferenceKeys.userIdKey)));
-    if (!result.hasException) {
-      getCurrentDayTasks();
-      return true;
-    }
-    return false;
+    return result.hasException?false:true;
   }
 
   Future<bool> markTodo(Todo todo) async =>
@@ -117,11 +124,7 @@ class TodoBloc extends Disposable with DateTimeMixin {
         endTime: _endTime.value,
         priority: _priority.value,
         userId: preference.getInt(PreferenceKeys.userIdKey)));
-    if (!result.hasException) {
-      getCurrentDayTasks();
-      return true;
-    }
-    return false;
+    return result.hasException?false:true;
   }
 
   void loadPassedData(Map map) {

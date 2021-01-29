@@ -6,6 +6,7 @@ import '../util/enums/priority.dart';
 
 class ApiQuery with DateTimeMixin {
   GraphQLClient _client;
+  SocketClient _subscriptionClient;
 
   ApiQuery()
       : _client = GraphQLClient(
@@ -13,12 +14,12 @@ class ApiQuery with DateTimeMixin {
           link: HttpLink(
             uri: 'https://todoapi.hasura.app/v1/graphql',
           ),
-        );
+        ),
+  _subscriptionClient = SocketClient('ws://todoapi.hasura.app/v1/graphql');
 
   Future<QueryResult> _query(String query) async =>
       await _client.query(QueryOptions(
         documentNode: gql(query),
-        fetchPolicy: FetchPolicy.cacheAndNetwork
       ));
 
   Future<QueryResult> _mutate(String query) async =>
@@ -26,8 +27,8 @@ class ApiQuery with DateTimeMixin {
         documentNode: gql(query),
       ));
 
-  Stream<FetchResult> _subscribe(String query) =>
-      _client.subscribe(Operation(documentNode: gql(query)));
+  Stream<SubscriptionData> _subscribe(String query) =>
+      _subscriptionClient.subscribe(SubscriptionRequest(Operation(documentNode:gql(query))),true);
 
   Future<QueryResult> createUser(User user) {
     return _mutate('''
@@ -105,7 +106,7 @@ class ApiQuery with DateTimeMixin {
   ''');
   }
 
-  Stream<FetchResult> subscribeTodoForUser(int userId, String date) {
+  Stream<SubscriptionData> subscribeTodoForUser(int userId, String date) {
     return _subscribe('''
       subscription MyQuery {
         todos(where: {_and: {user_id: {_eq: $userId}, date: {_eq: "$date"}}}) {
