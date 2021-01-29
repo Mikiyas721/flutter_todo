@@ -18,12 +18,16 @@ class ApiQuery with DateTimeMixin {
   Future<QueryResult> _query(String query) async =>
       await _client.query(QueryOptions(
         documentNode: gql(query),
+        fetchPolicy: FetchPolicy.cacheAndNetwork
       ));
 
   Future<QueryResult> _mutate(String query) async =>
       await _client.mutate(MutationOptions(
         documentNode: gql(query),
       ));
+
+  Stream<FetchResult> _subscribe(String query) =>
+      _client.subscribe(Operation(documentNode: gql(query)));
 
   Future<QueryResult> createUser(User user) {
     return _mutate('''
@@ -90,6 +94,7 @@ class ApiQuery with DateTimeMixin {
     }
   ''');
   }
+
   Future<QueryResult> markAsCompletedTodo(Todo todo) {
     return _mutate('''
       mutation updateTodo {
@@ -98,5 +103,21 @@ class ApiQuery with DateTimeMixin {
       }
     }
   ''');
+  }
+
+  Stream<FetchResult> subscribeTodoForUser(int userId, String date) {
+    return _subscribe('''
+      subscription MyQuery {
+        todos(where: {_and: {user_id: {_eq: $userId}, date: {_eq: "$date"}}}) {
+          id
+          title
+          date
+          start_time
+          end_time
+          priority
+          is_completed
+        }
+      }
+    ''');
   }
 }

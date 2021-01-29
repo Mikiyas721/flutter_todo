@@ -55,7 +55,7 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                     onChanged: (bool state) async {
                       if (await bloc.markTodo(Todo(
                           id: widget.todo.id,
-                          isCompleted: localCompletedState)))
+                          isCompleted: !localCompletedState)))
                         setState(() {
                           localCompletedState = !localCompletedState;
                         });
