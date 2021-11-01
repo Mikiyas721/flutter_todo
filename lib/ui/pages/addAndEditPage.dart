@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
 import '../../data/bloc/provider/provider.dart';
 import '../../data/bloc/todoBloc.dart';
 import '../widgets/todoTextField.dart';
@@ -10,11 +9,16 @@ import '../../util/enums/priority.dart';
 class AddAndEditPage extends StatelessWidget with DateTimeMixin {
   @override
   Widget build(BuildContext context) {
-    Map map = ModalRoute.of(context).settings.arguments;
+    Map map = ModalRoute
+        .of(context)
+        .settings
+        .arguments;
     return BlocProvider(
-        blocSource: () => TodoBloc(),
+        blocSource: () => TodoBloc(context),
+        onInit: (TodoBloc bloc) {
+          return bloc.loadPassedData(map);
+        },
         builder: (BuildContext context, TodoBloc bloc) {
-          bloc.loadPassedData(map);
           return Scaffold(
             backgroundColor: Color(0xfffbfbfb),
             appBar: AppBar(
@@ -48,10 +52,10 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                   children: [
                     TextField(
                       controller:
-                          TextEditingController(text: map['todo']?.title),
+                      TextEditingController(text: map['todo']?.title),
                       decoration: InputDecoration(
                         contentPadding:
-                            EdgeInsets.only(top: 20, bottom: 20, left: 10),
+                        EdgeInsets.only(top: 20, bottom: 20, left: 10),
                         suffixIcon: Padding(
                           padding: EdgeInsets.all(10),
                           child: Icon(
@@ -66,17 +70,12 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                         padding: EdgeInsets.only(top: 20, bottom: 20),
                         child: StreamBuilder(
                             stream: bloc.dateStream,
-                            builder: (context, snapshot) {
+                            builder: (context, AsyncSnapshot<DateTime> snapshot) {
                               return TodoTextField(
                                   isDate: true,
                                   initialText: getFullDateString(snapshot.data),
                                   onTap: () async {
-                                    DateTime selected = await showDatePicker(
-                                        context: context,
-                                        initialDate: snapshot.data,
-                                        firstDate: DateTime(1998),
-                                        lastDate: DateTime(2100));
-                                    if(selected!=null) bloc.updateDate(selected);
+                                    await bloc.onDate(snapshot.data);
                                   });
                             })),
                     Row(
@@ -85,16 +84,12 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                         SizedBox(
                           child: StreamBuilder(
                               stream: bloc.startTimeStream,
-                              builder: (context, snapshot) {
+                              builder: (context,
+                                  AsyncSnapshot<DateTime> snapshot) {
                                 return TodoTextField(
                                   initialText: mapTimeToMeridian(snapshot.data),
                                   onTap: () async {
-                                    TimeOfDay selectedTime =
-                                        await showTimePicker(
-                                            context: context,
-                                            initialTime: TimeOfDay.fromDateTime(
-                                                snapshot.data));
-                                    if(selectedTime!=null) bloc.updateStartTime(selectedTime);
+                                    await bloc.onStartTime(snapshot.data);
                                   },
                                 );
                               }),
@@ -103,16 +98,12 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                         SizedBox(
                           child: StreamBuilder(
                               stream: bloc.endTimeStream,
-                              builder: (context, snapshot) {
+                              builder: (context,
+                                  AsyncSnapshot<DateTime> snapshot) {
                                 return TodoTextField(
                                   initialText: mapTimeToMeridian(snapshot.data),
                                   onTap: () async {
-                                    TimeOfDay selectedTime =
-                                        await showTimePicker(
-                                            context: context,
-                                            initialTime: TimeOfDay.fromDateTime(
-                                                snapshot.data));
-                                    if(selectedTime!=null) bloc.updateEndTime(selectedTime);
+                                    await bloc.onEndTime(snapshot.data);
                                   },
                                 );
                               }),
@@ -130,7 +121,7 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                       currentItem: map['todo'] == null
                           ? null
                           : ((map['todo'].priority) as TaskPriority)
-                              .getString(),
+                          .getString(),
                     )
                   ],
                 ),
@@ -144,26 +135,13 @@ class AddAndEditPage extends StatelessWidget with DateTimeMixin {
                     child: RaisedButton(
                         padding: EdgeInsets.only(top: 18, bottom: 18),
                         elevation: 0,
-                        onPressed: () async{
-                          bool result = map['todo'] == null
-                              ? await bloc.onAddTodo()
-                              : await bloc.onUpdateTodo(map['todo'].id);
-                          if (result && map['todo'] == null)
-                            Toast.show('Successfully added task', context);
-                          else if (!result && map['todo'] == null)
-                            Toast.show('Unable to added task.Please Try Again',
-                                context);
-                          else if (result && map['todo'] != null) {
-                            Toast.show('Successfully updated task', context);
-                            Navigator.pop(context);
-                          } else if (!result && map['todo'] != null)
-                            Toast.show('Unable to update task.Please Try Again',
-                                context);
+                        onPressed: () async {
+                          await bloc.onAddOrSave(map);
                         },
                         color: Color(0xff006bff),
                         shape: RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(40))),
+                            BorderRadius.all(Radius.circular(40))),
                         child: Text(
                           map['todo'] == null ? 'Add' : 'Save',
                           style: TextStyle(color: Colors.white, fontSize: 20),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
 import '../../data/bloc/accountBloc.dart';
 import '../../data/bloc/provider/provider.dart';
 import '../../ui/widgets/accountTextField.dart';
@@ -37,8 +36,8 @@ class LoginPage extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.all(30),
-            child: BlocProvider(
-                blocSource: () => AccountBloc(),
+            child: BlocProvider<AccountBloc>(
+                blocSource: () => AccountBloc(context),
                 builder: (BuildContext context, AccountBloc bloc) {
                   return Column(
                     children: [
@@ -78,14 +77,15 @@ class LoginPage extends StatelessWidget {
                             );
                           }),
                       Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
+                          alignment: Alignment.centerRight,
+                          child:
+                              /*TextButton(
                             onPressed: () {},
                             child: Text(
                               'Forgot Password?',
                               style: TextStyle(color: Color(0xcc006bff)),
-                            )),
-                      ),
+                            ))*/
+                              Container(height: 30)),
                       Padding(
                         padding: EdgeInsets.only(top: 40, bottom: 10),
                         child: RaisedButton(
@@ -99,32 +99,38 @@ class LoginPage extends StatelessWidget {
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))),
                             color: Color(0xff006bff),
-                            onPressed: () async {
-                              bool isLoggedIn = await bloc.onLogIn();
-                              if (isLoggedIn) {
-                                Navigator.pushNamedAndRemoveUntil(context,
-                                    '/homePage', (_) => false);
-                              } else {
-                                Toast.show(
-                                    'Unable to Log in. Check your inputs and internet connection',
-                                    context,
-                                    duration: 2);
-                              }
-                            }),
+                            onPressed: bloc.onLogInClicked),
                       ),
-                      Center(
-                          child: Text(
-                        'or',
-                        style: TextStyle(color: Color(0x99006bff)),
-                      )),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                                width: MediaQuery.of(context).size.width * 0.38,
+                                child: Divider(
+                                  color: Colors.black38,
+                                )),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              child: Text(
+                                'or',
+                                style: TextStyle(color: Color(0x99006bff)),
+                              ),
+                            ),
+                            Container(
+                                width: MediaQuery.of(context).size.width * 0.38,
+                                child: Divider(
+                                  color: Colors.black38,
+                                ))
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                      ),
                       Padding(
                         padding: EdgeInsets.only(top: 10, bottom: 15),
                         child: OutlinedButton(
-                          onPressed: () {
-                            bloc.clearStreams();
-                            Navigator.pushReplacementNamed(
-                                context, '/signUpPage');
-                          },
+                          onPressed: bloc.onLoginPageSignUpClick,
                           child: Text(
                             'Sign up',
                             style: TextStyle(color: Color(0xff006bff)),

@@ -1,15 +1,16 @@
-import 'dart:ffi';
-
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 import '../../data/models/user.dart';
 import '../../util/apiQuery.dart';
 import '../../util/preferenceKeys.dart';
 import '../../util/abstracts/disposable.dart';
 
 class AccountBloc extends Disposable {
+  final BuildContext context;
   final _fullName =
       GetIt.instance.get<BehaviorSubject>(instanceName: 'FullName');
   final _email = GetIt.instance.get<BehaviorSubject>(instanceName: 'Email');
@@ -21,6 +22,8 @@ class AccountBloc extends Disposable {
       GetIt.instance.get<BehaviorSubject>(instanceName: 'PasswordRepeat');
   final _api = GetIt.instance.get<ApiQuery>();
   final _preference = GetIt.instance.get<SharedPreferences>();
+
+  AccountBloc(this.context);
 
   Stream<String> get nameValidationStream =>
       _fullName.map((data) => validateName(data));
@@ -143,7 +146,7 @@ class AccountBloc extends Disposable {
     return false;
   }
 
-  Future<bool> onLogIn() async {
+  Future<bool> login() async {
     QueryResult result = await _api
         .checkUser(User(userName: _userName.value, passWord: _password.value));
     bool isAUser = result.data['users'].isNotEmpty;
@@ -157,9 +160,45 @@ class AccountBloc extends Disposable {
     return false;
   }
 
+  onLogInClicked() async {
+    bool isLoggedIn = await login();
+    if (isLoggedIn) {
+      Navigator.pushNamedAndRemoveUntil(context, '/homePage', (_) => false);
+    } else {
+      Toast.show('Unable to Log in. Check your inputs and internet connection',
+          context,
+          duration: 2);
+    }
+  }
+
+  void onLoginPageSignUpClick() {
+    clearStreams();
+    Navigator.pushReplacementNamed(context, '/signUpPage');
+  }
+
+  void onSignUpPageSignUpClick()async{
+    bool isSignedIn = await onSignUp();
+    if (isSignedIn) {
+      Navigator.pushNamedAndRemoveUntil(
+          context, '/homePage',(_)=>false);
+    } else {
+      Toast.show(
+          'Unable to SignUp. Check your inputs and internet connection',
+          context,
+          duration: 2);
+    }
+  }
+
   Future<bool> onLogout() async =>
       await _preference.remove(PreferenceKeys.userIdKey) &&
       await _preference.remove(PreferenceKeys.createdAtKey);
+
+  Future<void> onOk() async {
+    if (await onLogout())
+      Navigator.pushNamedAndRemoveUntil(context, '/openingPage', (_) => false);
+    else
+      Toast.show("Couldn't Log out. Please try again", context);
+  }
 
   @override
   void dispose() {

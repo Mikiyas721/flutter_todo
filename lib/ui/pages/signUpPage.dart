@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
 import '../../data/bloc/accountBloc.dart';
 import '../../data/bloc/provider/provider.dart';
 import '../../ui/widgets/accountTextField.dart';
@@ -34,8 +33,8 @@ class SignUpPage extends StatelessWidget {
             ),
             Padding(
                 padding: EdgeInsets.fromLTRB(30, 15, 30, 0),
-                child: BlocProvider(
-                    blocSource: () => AccountBloc(),
+                child: BlocProvider<AccountBloc>(
+                    blocSource: () => AccountBloc(context),
                     builder: (BuildContext context, AccountBloc bloc) {
                       return Column(children: [
                         StreamBuilder(
@@ -100,18 +99,7 @@ class SignUpPage extends StatelessWidget {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10))),
                               color: Color(0xff006bff),
-                              onPressed: () async {
-                                bool isSignedIn = await bloc.onSignUp();
-                                if (isSignedIn) {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                      context, '/homePage',(_)=>false);
-                                } else {
-                                  Toast.show(
-                                      'Unable to SignUp. Check your inputs and internet connection',
-                                      context,
-                                      duration: 2);
-                                }
-                              }),
+                              onPressed: bloc.onSignUpPageSignUpClick),
                         ),
                         Center(
                             child: Text(

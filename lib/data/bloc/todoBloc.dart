@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 import 'package:todo/data/models/todo.dart';
 import 'package:todo/util/mixin/dateTimeMixin.dart';
 import '../../util/enums/priority.dart';
@@ -13,6 +14,8 @@ import '../../util/preferenceKeys.dart';
 import '../../util/abstracts/disposable.dart';
 
 class TodoBloc extends Disposable with DateTimeMixin {
+  final BuildContext context;
+
   final _currentDate = GetIt.instance.get<BehaviorSubject<DateTime>>();
   final _currentDateTasks = GetIt.instance.get<BehaviorSubject<List>>();
   final _api = GetIt.instance.get<ApiQuery>();
@@ -28,6 +31,8 @@ class TodoBloc extends Disposable with DateTimeMixin {
       GetIt.instance.get<BehaviorSubject<DateTime>>(instanceName: 'EndTime');
   final _priority = GetIt.instance
       .get<BehaviorSubject<TaskPriority>>(instanceName: 'Priority');
+
+  TodoBloc(this.context);
 
   Stream<List> get currentDateTasksStream =>
       _currentDateTasks.map((value) => value);
@@ -109,11 +114,11 @@ class TodoBloc extends Disposable with DateTimeMixin {
         endTime: _endTime.value,
         priority: _priority.value,
         userId: preference.getInt(PreferenceKeys.userIdKey)));
-    return result.hasException?false:true;
+    return result.hasException ? false : true;
   }
 
   Future<bool> markTodo(Todo todo) async =>
-      !((await _api.markAsCompletedTodo(todo)).hasException);
+      !((await _api.changeTodoState(todo)).hasException);
 
   Future<bool> onUpdateTodo(int id) async {
     QueryResult result = await _api.updateTodo(Todo(
@@ -124,7 +129,7 @@ class TodoBloc extends Disposable with DateTimeMixin {
         endTime: _endTime.value,
         priority: _priority.value,
         userId: preference.getInt(PreferenceKeys.userIdKey)));
-    return result.hasException?false:true;
+    return result.hasException ? false : true;
   }
 
   void loadPassedData(Map map) {
@@ -140,6 +145,70 @@ class TodoBloc extends Disposable with DateTimeMixin {
       _endTime.add(map['todo'].endTime);
       _priority.add(map['todo'].priority);
     }
+  }
+
+  Future<void> onAddOrSave(Map map) async {
+    bool result = map['todo'] == null
+        ? await onAddTodo()
+        : await onUpdateTodo(map['todo'].id);
+    if (result && map['todo'] == null)
+      Toast.show('Successfully added task', context);
+    else if (!result && map['todo'] == null)
+      Toast.show('Unable to added task.Please Try Again', context);
+    else if (result && map['todo'] != null) {
+      Toast.show('Successfully updated task', context);
+      Navigator.pop(context);
+    } else if (!result && map['todo'] != null)
+      Toast.show('Unable to update task.Please Try Again', context);
+  }
+
+  Future<void> onDate(DateTime dateTime) async {
+    DateTime selected = await showDatePicker(
+        context: context,
+        initialDate: dateTime,
+        firstDate: DateTime(1998),
+        lastDate: DateTime(2100));
+    if (selected != null) updateDate(selected);
+  }
+
+  Future<void> onStartTime(DateTime dateTime) async {
+    TimeOfDay selectedTime = await showTimePicker(
+        context: context, initialTime: TimeOfDay.fromDateTime(dateTime));
+    if (selectedTime != null) updateStartTime(selectedTime);
+  }
+
+  Future<void> onEndTime(DateTime dateTime) async {
+    TimeOfDay selectedTime = await showTimePicker(
+        context: context, initialTime: TimeOfDay.fromDateTime(dateTime));
+    if (selectedTime != null) updateEndTime(selectedTime);
+  }
+
+  void onAddNewTask() {
+    Navigator.pushNamed(context, '/addAndEditPage',
+        arguments: {'todo': null, 'date': currentDate});
+  }
+
+  void onTaskStateChanged(Todo todo, bool isChecked) async {
+    if (await markTodo(Todo(id: todo.id, isCompleted: isChecked)))
+      await updateTasksStream(todo.id, isChecked);
+    else
+      Toast.show("Couldn't update.Please try again", context);
+  }
+
+  Future<void> updateTasksStream(int id, bool isCompleted) async {
+    _currentDateTasks.add(await _currentDateTasks
+        .map((value) => value.map((map) {
+              if (map['id'] == id) {
+                print(map);
+              }
+              return map;
+            }))
+        .toList());
+  }
+
+  void onCardTap(Todo todo) {
+    Navigator.pushNamed(context, '/addAndEditPage',
+        arguments: {'todo': todo, 'date': null});
   }
 
   @override

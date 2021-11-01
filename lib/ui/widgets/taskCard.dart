@@ -7,27 +7,19 @@ import '../../util/mixin/dateTimeMixin.dart';
 import '../../util/enums/priority.dart';
 import '../../data/models/todo.dart';
 
-class TaskCard extends StatefulWidget {
+class TaskCard extends StatelessWidget with DateTimeMixin {
   final Todo todo;
+  final Function(bool isCheck) onTaskStateChanged;
+  final VoidCallback onCardTap;
 
-  TaskCard({@required this.todo});
-
-  @override
-  State<StatefulWidget> createState() => _TaskCardState();
-}
-
-class _TaskCardState extends State<TaskCard> with DateTimeMixin {
-  bool localCompletedState;
-
-  @override
-  void initState() {
-    localCompletedState = widget.todo.isCompleted;
-    super.initState();
-  }
+  TaskCard({
+    @required this.todo,
+    @required this.onTaskStateChanged,
+    @required this.onCardTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<TodoBloc>(context);
     return GestureDetector(
       child: Container(
         padding: EdgeInsets.only(top: 10, bottom: 10, right: 20, left: 20),
@@ -43,7 +35,7 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Text(
-                  widget.todo.title,
+                  todo.title,
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -51,16 +43,9 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                 ),
                 Spacer(),
                 Checkbox(
-                    value: localCompletedState,
+                    value: todo.isCompleted,
                     onChanged: (bool state) async {
-                      if (await bloc.markTodo(Todo(
-                          id: widget.todo.id,
-                          isCompleted: !localCompletedState)))
-                        setState(() {
-                          localCompletedState = !localCompletedState;
-                        });
-                      else
-                        Toast.show("Couldn't update.Please try again", context);
+                      onTaskStateChanged(state);
                     })
               ],
             ),
@@ -74,12 +59,12 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
                   color: Colors.white54,
                 ),
                 Text(
-                  ' ${mapTimeToMeridian(widget.todo.startTime)} - ${mapTimeToMeridian(widget.todo.endTime)}',
+                  ' ${mapTimeToMeridian(todo.startTime)} - ${mapTimeToMeridian(todo.endTime)}',
                   style: TextStyle(color: Colors.white),
                 ),
                 Spacer(),
                 Text(
-                  'Priority: ${widget.todo.priority.getString()}',
+                  'Priority: ${todo.priority.getString()}',
                   style: TextStyle(color: Colors.white),
                 ),
               ],
@@ -87,10 +72,7 @@ class _TaskCardState extends State<TaskCard> with DateTimeMixin {
           ],
         ),
       ),
-      onTap: () {
-        Navigator.pushNamed(context, '/addAndEditPage',
-            arguments: {'todo': widget.todo, 'date': null});
-      },
+      onTap: onCardTap,
     );
   }
 }

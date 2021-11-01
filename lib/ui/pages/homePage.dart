@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
 import 'package:todo/data/bloc/accountBloc.dart';
 import '../../data/models/todo.dart';
 import '../../ui/widgets/taskCard.dart';
@@ -11,10 +10,13 @@ import '../../ui/widgets/myPageView.dart';
 class HomePage extends StatelessWidget with DateTimeMixin {
   @override
   Widget build(BuildContext context) {
+    List days;
     return BlocProvider(
-        blocSource: () => TodoBloc(),
+        blocSource: () => TodoBloc(context),
+        onInit: (TodoBloc bloc) {
+          days = bloc.getDates();
+        },
         builder: (BuildContext context, TodoBloc bloc) {
-          List days = bloc.getDates();
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -29,42 +31,35 @@ class HomePage extends StatelessWidget with DateTimeMixin {
                     onPageChanged: bloc.updateCurrentDate,
                   ),
                   BlocProvider(
-                    blocSource: () => AccountBloc(),
+                    blocSource: () => AccountBloc(context),
                     builder: (BuildContext context, AccountBloc bloc) {
                       return Align(
                         alignment: Alignment.centerRight,
                         child: Padding(
-                          padding: EdgeInsets.only(top:25),
+                          padding: EdgeInsets.only(top: 25),
                           child: IconButton(
-                              icon: Icon(Icons.logout,color:Color(0xffaa3088)),
+                              icon:
+                                  Icon(Icons.logout, color: Color(0xffaa3088)),
                               onPressed: () {
                                 showDialog(
                                     context: context,
-                                    child: AlertDialog(
-                                      title: Text('Log out'),
-                                      content: Text(
-                                          'Are you sure you want to log out?'),
-                                      actions: [
-                                        FlatButton(
-                                            child: Text('Cancel'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            }),
-                                        FlatButton(
-                                            child: Text('Ok'),
-                                            onPressed: () async {
-                                              if (await bloc.onLogout())
-                                                Navigator.pushNamedAndRemoveUntil(
-                                                    context,
-                                                    '/openingPage',
-                                                    (_) => false);
-                                              else
-                                                Toast.show(
-                                                    "Couldn't Log out. Please try again",
-                                                    context);
-                                            }),
-                                      ],
-                                    ));
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Log out'),
+                                        content: Text(
+                                            'Are you sure you want to log out?'),
+                                        actions: [
+                                          FlatButton(
+                                              child: Text('Cancel'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              }),
+                                          FlatButton(
+                                              child: Text('Ok'),
+                                              onPressed: bloc.onOk),
+                                        ],
+                                      );
+                                    });
                               }),
                         ),
                       );
@@ -94,7 +89,15 @@ class HomePage extends StatelessWidget with DateTimeMixin {
                                 itemCount: snapshot.data.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return TaskCard(
-                                      todo: Todo.fromApi(snapshot.data[index]));
+                                    todo: Todo.fromApi(snapshot.data[index]),
+                                    onTaskStateChanged: (bool isChecked) {
+                                      bloc.onTaskStateChanged(
+                                          snapshot.data[index], isChecked);
+                                    },
+                                    onCardTap: () {
+                                      bloc.onCardTap(snapshot.data[index]);
+                                    },
+                                  );
                                 },
                               );
                   }),
@@ -107,13 +110,7 @@ class HomePage extends StatelessWidget with DateTimeMixin {
                     child: RaisedButton(
                         padding: EdgeInsets.only(top: 18, bottom: 18),
                         elevation: 0,
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/addAndEditPage',
-                              arguments: {
-                                'todo': null,
-                                'date': bloc.currentDate
-                              });
-                        },
+                        onPressed: bloc.onAddNewTask,
                         color: Color(0xff006bff),
                         shape: RoundedRectangleBorder(
                             borderRadius:

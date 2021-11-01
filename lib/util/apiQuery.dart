@@ -96,7 +96,7 @@ class ApiQuery with DateTimeMixin {
   ''');
   }
 
-  Future<QueryResult> markAsCompletedTodo(Todo todo) {
+  Future<QueryResult> changeTodoState(Todo todo) {
     return _mutate('''
       mutation updateTodo {
         update_todos_by_pk(pk_columns: {id: ${todo.id}}, _set: {is_completed: ${todo.isCompleted}}) {
